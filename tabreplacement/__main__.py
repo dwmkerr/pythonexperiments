@@ -6,41 +6,26 @@
 # tabreplacement [folder]
 
 # Core imports
-import sys, getopt, os
+import sys, getopt, os     
+from parameters import Parameters
 
 def main(argv):
 
-    # Create the default settings.
-    recurse = False
-    directories = None
-    preview = False
-    fileType = None
+    print(argv)
 
-    # Get the arguments.
-    try:
-        options, arguments = getopt.getopt(argv, "hrpt:")
-    except getopt.GetoptError:
-        show_help(True)
+    # Create and parse parameters.
+    parameters = Parameters()
+    parameters.parse(argv)
 
-    # Go through the options.
-    for opt, arg in options:
-        if opt == '-h':
-            show_help(True)
-        elif opt == '-r':
-            recurse = False
-        elif opt == '-p':
-            preview = True
-        elif opt == '-t':
-            fileType = arg
-        
-    # The directory list is now the arguments.
-    directories = arguments
-    if(len(directories) == 0):
+    # Do we need to show help?
+    if parameters.help or len(parameters.directories) == 0:
         show_help(True)
+        return
 
     # Handle each directory.
-    for directory in directories:
-        process_directory(directory, recurse, preview, fileType)
+    for directory in parameters.directories:
+        process_directory(directory, parameters.recurse, parameters.preview, 
+            parameters.fileType)
 
 def process_directory(directory, recurse, preview, fileType):
 
