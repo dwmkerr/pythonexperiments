@@ -13,10 +13,12 @@ def main(argv):
 	# Create the default settings.
 	recurse = False
 	directories = None
+	preview = False
+	fileType = None
 
 	# Get the arguments.
 	try:
-		options, arguments = getopt.getopt(argv, "hr")
+		options, arguments = getopt.getopt(argv, "hrpt:")
 	except getopt.GetoptError:
 		show_help(True)
 
@@ -26,6 +28,10 @@ def main(argv):
 			show_help(True)
 		elif opt == '-r':
 			recurse = False
+		elif opt == '-p':
+			preview = True
+		elif opt == '-t':
+			fileType = arg
 		
 	# The directory list is now the arguments.
 	directories = arguments
@@ -34,9 +40,9 @@ def main(argv):
 
 	# Handle each directory.
 	for directory in directories:
-		process_directory(directory, recurse)
+		process_directory(directory, recurse, preview, fileType)
 
-def process_directory(directory, recurse):
+def process_directory(directory, recurse, preview, fileType):
 
 	# Write some info to the user.
 	print("Checking " + directory)
@@ -46,14 +52,22 @@ def process_directory(directory, recurse):
 
 		# Process each file.
 		for file in files:
-			process_file(file)
+			process_file(file, preview, fileType)
 
 		# Process directories if we're recursing.
 		if recurse:
 			for dir in dirs:
-				process_directory(dir, recurse)
+				process_directory(dir, recurse, preview, filetype)
 
-def process_file(file):
+def process_file(file, preview, fileType):
+
+	# Always skip files that end with a tilde (because we may have created them).
+	if file.endswith("~"):
+		return
+
+	# If we have a filetype, but we don't end with it, skip it.
+	if fileType and file.endswith(fileType) == False:
+		return
 
 	# The count of tabs.
 	tabCount = 0
@@ -89,16 +103,23 @@ def process_file(file):
 			# Output info on the file.
 			print(file + ": Replaced " + str(tabCount) + " tabs")
 
-	# Now delete the existing file and replace it with the new one.
-	#os.remote(file)
-	#os.rename(temoFile, file)
+	# If we're in preview mode, we'll just delete the temporary file...
+	if preview:
+		os.remove(tempFile)
+		return
+
+	# ...otherwise delete the existing file and replace it with the new one.
+	os.remove(file)
+	os.rename(tempFile, file)
 
 def show_help(exitAfter):
 
 	# Print the help text.
 	print("tabplace - Replace tabs with four spaces")
-	print("Usage: tabreplace -r <directory> <directory> <directory>")
-	print(" -r: Recurse in <directory>")
+	print("Usage: tabreplace -r -p -t <type> <directory> <directory> <directory>")
+	print(" -r: Optional. Recurse in <directory>")
+	print(" -p: Optional. Show a preview only, don't change any files")
+	print(" -t <type>: Optional. Process only files that end in <type>.")
 	print(" <directory>: The directory to search for files")
 
 	# If we've been told to exit, do so.
