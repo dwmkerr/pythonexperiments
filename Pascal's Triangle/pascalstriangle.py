@@ -1,4 +1,4 @@
-# Pascals Triangle
+# Pascal's Triangle
 #
 # The code experiment is a learning exercise for Python.
 
