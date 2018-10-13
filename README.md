@@ -1,6 +1,8 @@
 pythonexperiments
 =================
 
+[![GuardRails badge](https://badges.production.guardrails.io/dwmkerr/pythonexperiments.svg)](https://www.guardrails.io)
+
 A set of experiments in Python, good for learning.
 
 Pascal's Triangle
